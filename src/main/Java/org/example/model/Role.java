@@ -1,10 +1,10 @@
 package org.example.model;
 
 
-
 import org.springframework.security.core.GrantedAuthority;
 
 import javax.persistence.*;
+import java.util.HashSet;
 import java.util.Set;
 
 // Этот класс реализует интерфейс GrantedAuthority, в котором необходимо переопределить только один метод getAuthority() (возвращает имя роли).
@@ -13,38 +13,43 @@ import java.util.Set;
 @Table(name = "roles")
 public class Role implements GrantedAuthority {
 
-
-    @Id@GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = " role_id")
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "role_id")
     private Long id;
-
+    @Column(name = "role", unique = true)
     private String role;
 
     @Transient
-    @ManyToMany(mappedBy = "roles")
-    private Set<User> usersSet;
+    @ManyToMany(cascade = CascadeType.MERGE, mappedBy = "roles")
+    private Set<User> usersSet = new HashSet<>();
 
-   public Role() {}
-   public Role(Long id, String role) {
-       this.id = id;
-       this.role = role;
-   }
+    public Role() {
+    }
 
-    public void setId() {
-       this.id = id;
+    public Role(String role) {
+
+        this.role = role;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getRole() {
-       return role;
+        return role;
     }
 
-    public void setRole() {
-       this.role = role;
+    public void setRole(String role) {
+        this.role = role;
     }
 
-    @Override
-    public String getAuthority() {
-       return getRole();
+    public void addUser(User user) {
+        this.usersSet.add(user);
     }
 
     public Set<User> getUsersSet() {
@@ -55,11 +60,9 @@ public class Role implements GrantedAuthority {
         this.usersSet = usersSet;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    @Override
+    public String getAuthority() {
+        return getRole();
     }
 
-    public Long getId() {
-        return id;
-    }
 }

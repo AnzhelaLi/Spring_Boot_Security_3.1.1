@@ -1,13 +1,14 @@
 package org.example.model;
 
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
+
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
-import java.util.ArrayList;
+
 import java.util.Collection;
-import java.util.List;
+
+import java.util.HashSet;
 import java.util.Set;
 // Для того, чтобы в дальнейшим использовать класс User в Spring Security, он должен реализовывать интерфейс UserDetails.
 // UserDetails можно представить, как адаптер между БД пользователей и тем что требуется Spring Security внутри SecurityContextHolder
@@ -17,22 +18,29 @@ import java.util.Set;
 @Table(name = "users")
 public class User implements UserDetails {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
     private Long id;
-
+    @Column(name = "name")
     private String name;
+    @Column(name = "surname")
     private String surname;
+    @Column(name = "workplace")
     private String workplace;
+    @Column(name = "age")
     private int age;
+    @Column(name = "salary")
     private int salary;
+    @Column(name = "username", unique = true)
     private String username; // уникальное значение
+    @Column(name = "password")
     private String password;
-    @Transient
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
+
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     @JoinTable(name = "user_role", joinColumns = @JoinColumn(name = "user_id"),
-    inverseJoinColumns = @JoinColumn(name = "role_id"))
-    private Set<Role> roles;
+            inverseJoinColumns = @JoinColumn(name = "role_id"))
+    private Set<Role> roles = new HashSet<>();
 
     public User(String name, String surname, String workplace, int age, int salary, String password,
                 String username, Set<Role> roles) {
@@ -46,16 +54,16 @@ public class User implements UserDetails {
         this.username = username;
         this.roles = roles;
     }
-    public User(String name, String surname, String workplace, int age, int salary, String password,
-                String username) {
+
+    public User(String name, String surname, String workplace, int age, int salary, String username, String password) {
 
         this.name = name;
         this.surname = surname;
         this.workplace = workplace;
         this.age = age;
         this.salary = salary;
-        this.password = password;
         this.username = username;
+        this.password = password;
 
     }
 
@@ -112,42 +120,61 @@ public class User implements UserDetails {
         this.salary = salary;
     }
 
-    public void setPassword(String encode) { this.password = password; }
+    public void setPassword(String password) {
+        this.password = password;
+    }
 
-    public Set<Role> getRoles() { return roles; }
+    public Set<Role> getRoles() {
+        return roles;
+    }
 
-    public void setRoles(Set<Role> roles) { this.roles = roles; }
+    public void setRoles(Set<Role> roles) {
+        this.roles = roles;
+    }
 
-    public void setUsername() { this.username = username; }
+    public void addRole(Role role) {
+        this.roles.add(role);
+
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
 
     @Override
-    public String getPassword() { return password; }
+    public String getPassword() {
+        return password;
+    }
 
     @Override
-    public String getUsername() { return username; }
+    public String getUsername() {
+        return username;
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-       /* User user;
-        List<Role> roles = user.get ;
-        List<SimpleGrantedAuthority> authorities = new ArrayList<>();
-        for (Role role : roles ) {
-            authorities.add(new SimpleGrantedAuthority(role.getRole()));
-            return authorities;*/
 
-       return getRoles(); }
+        return getRoles();
+    }
 
     @Override
-    public boolean isAccountNonExpired() { return true; }
+    public boolean isAccountNonExpired() {
+        return true;
+    }
 
     @Override
-    public boolean isAccountNonLocked() { return true; }
+    public boolean isAccountNonLocked() {
+        return true;
+    }
 
     @Override
-    public boolean isCredentialsNonExpired() { return true; }
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
 
     @Override
-    public boolean isEnabled() { return true; }
-
+    public boolean isEnabled() {
+        return true;
+    }
 
 }

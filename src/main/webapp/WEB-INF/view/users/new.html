@@ -2,11 +2,13 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <div style='float: right; '><a th:href="@{/logout}">logout</a>
+    </div>
     <title>new user</title>
 </head>
 <body>
 <h1>USER FORM</h1>
-<form th:action="@{/users}" th:object="${user}" th:method="post">
+<form th:action="@{/admin}" th:object="${user}" th:method="post">
     <label for="name">First_name:</label>
     <input type="text" th:field="*{name}" id="name"/>
     <label for="surname">Last name:</label>
@@ -19,8 +21,10 @@
     <input type="number" th:field="*{salary}" id="salary"/>
     <label for="username">Username: </label>
     <input type="text" th:field="*{username}" id="username"/>
+    <label for="password">Password: </label>
+    <input type="text" th:field="*{password}" id="password"/>
 
-        <br/>
+    <br/>
     <p><input type="submit" value="Save"/></p>
 </form>
 </body>

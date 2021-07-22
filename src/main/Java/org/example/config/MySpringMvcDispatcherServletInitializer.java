@@ -1,13 +1,10 @@
 package org.example.config;
 
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import org.springframework.web.context.ContextLoaderListener;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.web.filter.HiddenHttpMethodFilter;
 import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatcherServletInitializer;
 
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
+import javax.servlet.*;
 
 public class MySpringMvcDispatcherServletInitializer extends AbstractAnnotationConfigDispatcherServletInitializer {
     @Override
@@ -20,22 +17,23 @@ public class MySpringMvcDispatcherServletInitializer extends AbstractAnnotationC
         return new Class[]{SpringConfig.class};
     }
 
+    @NotNull
     @Override
     protected String[] getServletMappings() {
         return new String[]{"/"};
     }
 
     @Override
-    public void onStartup(ServletContext aServletContext) throws ServletException {
+    public void onStartup(@NotNull ServletContext aServletContext) throws ServletException {
         super.onStartup(aServletContext);
         registerHiddenFieldFilter(aServletContext);
-        /*AnnotationConfigApplicationContext appContext = new AnnotationConfigApplicationContext();
-        appContext.register(ApplicationContext.class);
-        ContextLoaderListener contextLoaderListener = new ContextLoaderListener();*/
+
     }
 
-    private void registerHiddenFieldFilter(ServletContext aContext) {
+    private void registerHiddenFieldFilter(ServletContext aContext) {           //нужно для "удалить" и "изменить"
         aContext.addFilter("hiddenHttpMethodFilter", new HiddenHttpMethodFilter()).
                 addMappingForUrlPatterns(null, true, "/*");
     }
+
+
 }

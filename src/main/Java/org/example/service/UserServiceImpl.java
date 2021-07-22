@@ -5,42 +5,62 @@ import org.example.dao.UserDao;
 import org.example.model.Role;
 import org.example.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 @Service
-
 public class UserServiceImpl implements UserService, UserDetailsService {
 
     private UserDao userDao;
+    private RoleDao roleDao;
+    private PasswordEncoder passwordEncoder;
+
     @Autowired
-    public UserServiceImpl(@Lazy UserDao userDao) {
+    public UserServiceImpl(UserDao userDao, RoleDao roleDao, PasswordEncoder passwordEncoder) {
+
+        this.passwordEncoder = passwordEncoder;
         this.userDao = userDao;
+        this.roleDao = roleDao;
     }
 
-    //public UserServiceImpl() {
+    public UserServiceImpl() {
 
-    //}
+    }
 
-    /* @Autowired
-     private RoleDao roleDao;
- */
     @Transactional
     @Override
-    public User saveUser(User user) {
-        return userDao.saveUser(user);
+    public User justSaveUser(User user) {
+        return userDao.justSaveUser(user);
+    }
+
+    @Override
+    public User registerUser(User user) {
+        User userFromDb = userDao.getUserByName(user.getUsername());
+        Role role = roleDao.findByRole("ROLE_USER");
+        if (userFromDb == null) {
+            user.setRoles(new HashSet<>(Arrays.asList(role)));
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+            userDao.justSaveUser(user);
+        } else {
+            try {
+                throw new Exception("User already exists");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return user;
     }
 
     @Transactional
@@ -53,6 +73,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Override
     public User updateUser(User user) {
 
+        user.setRoles(new HashSet<>(Arrays.asList(roleDao.findByRole("ROLE_USER"))));
+        user.setPassword(user.getPassword());
         return userDao.updateUser(user);
     }
 
@@ -77,11 +99,34 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         }
      Set<GrantedAuthority> grantedAuthorities = new HashSet<>();
         for (Role role : user.getRoles()) {
-            grantedAuthorities.add(new SimpleGrantedAuthority(role.getRole())  );
+            grantedAuthorities.add(new SimpleGrantedAuthority(role.getRole()));
         }
-
         return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(),
                 grantedAuthorities);
+    }
+    @Override
+    @Transactional
+    public void addInitData() {
+
+        User admin = new User("Ivan", "Ivanov", "Kinopark", 33, 64000, "ivan", "$2a$10$ZBQEot6lXLJUsZlZOGJk/OHYdlAfD8Mf4ES48NgfTWhrKm1JGI7Cm");
+        User user = new User("Ivana", "Ivanova", "Kinopark", 36, 60000, "ivanka", "$2a$10$yLyghRcZPTYfGCFME.Gw3OgISFBr1UFzQjTpxGKXKX6Abdg/CYZwW");
+
+        userDao.justSaveUser(admin);
+        userDao.justSaveUser(user);
+
+        Role roleAdmin = new Role("ROLE_ADMIN");
+        Role roleUser = new Role("ROLE_USER");
+
+        roleDao.saveRole(roleAdmin);
+        roleDao.saveRole(roleUser);
+
+        admin.addRole(roleAdmin);
+        admin.addRole(roleUser);
+        user.addRole(roleUser);
+
+        roleAdmin.addUser(admin);
+        roleUser.addUser(admin);
+        roleUser.addUser(user);
 
     }
 }

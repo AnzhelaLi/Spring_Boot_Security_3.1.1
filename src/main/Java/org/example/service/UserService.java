@@ -2,15 +2,15 @@ package org.example.service;
 
 import org.example.model.User;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
+
 
 import java.util.List;
 
-@Service
-@Component
 public interface UserService {
-    User saveUser(User user);
+
+    User registerUser(User user);
+
+    User justSaveUser(User user);
 
     void deleteUser(Long id);
 
@@ -21,4 +21,6 @@ public interface UserService {
     User findUserById(Long id);
 
     UserDetails loadUserByUsername(String username);
+
+    void addInitData();
 }

@@ -3,7 +3,7 @@ package org.example.controller;
 import org.example.service.UserService;
 import org.example.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -14,11 +14,11 @@ import org.springframework.web.bind.annotation.*;
 public class AdminController {
 
     private final UserService userService;
-   // private final BCryptPasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
 
-    @Autowired//(required = true)
-    public AdminController(@Lazy UserService userService /*@Lazy BCryptPasswordEncoder passwordEncoder*/) {
-       // this.passwordEncoder = passwordEncoder;
+    @Autowired
+    public AdminController(UserService userService, PasswordEncoder passwordEncoder) {
+        this.passwordEncoder = passwordEncoder;
         this.userService = userService;
     }
 
@@ -34,14 +34,11 @@ public class AdminController {
         return "users/edit";
     }
 
-
     @PatchMapping("/{id}")
     public String update(@ModelAttribute("user") User user) {
         userService.updateUser(user);
         return "redirect:/admin/allUsers";
     }
-
-
 
     @GetMapping("/new") //форма для нового юзера
     public String newUser(Model model) {           //@ModelAttribute
@@ -52,13 +49,12 @@ public class AdminController {
 
     @PostMapping//перенаправление на страницу всех юзеров
     public String create(@ModelAttribute("user") User user) {
-        userService.saveUser(user);
+        userService.registerUser(user);
         return "redirect:/admin/allUsers";
     }
 
     @DeleteMapping("/{id}")
     public String delete(@PathVariable("id") Long id) {
-
         userService.deleteUser(id);
         return "redirect:/admin/allUsers";
     }

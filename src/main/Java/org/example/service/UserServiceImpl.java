@@ -5,45 +5,71 @@ import org.example.dao.UserDao;
 import org.example.model.Role;
 import org.example.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import org.springframework.transaction.annotation.Transactional;
 
+import javax.transaction.Transactional;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 @Service
+@Transactional
 public class UserServiceImpl implements UserService, UserDetailsService {
+
 
     private UserDao userDao;
     private RoleDao roleDao;
-    private PasswordEncoder passwordEncoder;
+    private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @Autowired
-    public UserServiceImpl(UserDao userDao, RoleDao roleDao, PasswordEncoder passwordEncoder) {
+    public void setUserDao(UserDao userDao) {
 
-        this.passwordEncoder = passwordEncoder;
         this.userDao = userDao;
+
+    }
+
+    public UserDao getUserDao() {
+        return userDao;
+    }
+
+    @Autowired
+    public void setRoleDao(RoleDao roleDao) {
         this.roleDao = roleDao;
+    }
+
+    public RoleDao getRoleDao() {
+        return roleDao;
+    }
+
+    @Autowired
+    public void setPasswordEncoder(PasswordEncoder passwordEncoder) {
+        this.passwordEncoder = passwordEncoder;
+    }
+
+    public PasswordEncoder getPasswordEncoder() {
+        return passwordEncoder;
     }
 
     public UserServiceImpl() {
 
     }
 
-    @Transactional
     @Override
     public User justSaveUser(User user) {
         return userDao.justSaveUser(user);
     }
+
 
     @Override
     public User registerUser(User user) {
@@ -63,13 +89,11 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         return user;
     }
 
-    @Transactional
     @Override
     public void deleteUser(Long id) {
         userDao.deleteUser(id);
     }
 
-    @Transactional
     @Override
     public User updateUser(User user) {
 
@@ -78,34 +102,31 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         return userDao.updateUser(user);
     }
 
-    @Transactional(readOnly = true)
     @Override
     public List<User> usersList() {
         return userDao.usersList();
     }
 
-    @Transactional
     @Override
     public User findUserById(Long id) {
         return userDao.findUserById(id);
     }
 
-    @Transactional(readOnly = true)
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = userDao.getUserByName(username);
-        if(user == null ) {
+        if (user == null) {
             throw new UsernameNotFoundException("username not found");
         }
-     Set<GrantedAuthority> grantedAuthorities = new HashSet<>();
+        Set<GrantedAuthority> grantedAuthorities = new HashSet<>();
         for (Role role : user.getRoles()) {
             grantedAuthorities.add(new SimpleGrantedAuthority(role.getRole()));
         }
         return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(),
                 grantedAuthorities);
     }
-    @Override
-    @Transactional
+
+    /*@Override
     public void addInitData() {
 
         User admin = new User("Ivan", "Ivanov", "Kinopark", 33, 64000, "ivan", "$2a$10$ZBQEot6lXLJUsZlZOGJk/OHYdlAfD8Mf4ES48NgfTWhrKm1JGI7Cm");
@@ -128,5 +149,15 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         roleUser.addUser(admin);
         roleUser.addUser(user);
 
+    }*/
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    public static void main(String[] args) {
+        UserServiceImpl us = new UserServiceImpl();
+        System.out.println(us.getPasswordEncoder().encode("passw"));
+        System.out.println(us.passwordEncoder.encode("parol"));
     }
 }

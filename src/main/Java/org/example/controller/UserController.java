@@ -29,14 +29,14 @@ public class UserController {
     public String userPage(/*@PathVariable String id,*/ Principal principal, Model model) {
         User username = userDao.getUserByName(principal.getName());
         model.addAttribute("user", username);
-        return "users/userInfo";
+        return "userInfo";
     }
 
     @GetMapping
     public String showUser(Model model) {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         model.addAttribute("user", user);
-        return "users/userInfo";
+        return "userInfo";
     }
 
 }

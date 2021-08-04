@@ -22,5 +22,4 @@ public interface UserService {
 
     UserDetails loadUserByUsername(String username);
 
-    void addInitData();
 }

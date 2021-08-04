@@ -3,6 +3,7 @@ package org.example.controller;
 import org.example.service.UserService;
 import org.example.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -13,25 +14,26 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/admin")
 public class AdminController {
 
-    private final UserService userService;
-    private final PasswordEncoder passwordEncoder;
-
     @Autowired
-    public AdminController(UserService userService, PasswordEncoder passwordEncoder) {
+    private UserService userService;
+    private  PasswordEncoder passwordEncoder;
+
+    /*@Autowired
+    public AdminController(@Lazy UserService userService, @Lazy PasswordEncoder passwordEncoder) {
         this.passwordEncoder = passwordEncoder;
         this.userService = userService;
-    }
+    }*/
 
     @GetMapping("/allUsers")//полный список
     public String list(Model model) {
         model.addAttribute("users", userService.usersList());
-        return "users/list";
+        return "list";
     }
 
     @GetMapping("/{id}/edit")
     public String edit(@PathVariable("id") Long id, Model model) {
         model.addAttribute("user", userService.findUserById(id));
-        return "users/edit";
+        return "edit";
     }
 
     @PatchMapping("/{id}")
@@ -44,7 +46,7 @@ public class AdminController {
     public String newUser(Model model) {           //@ModelAttribute
         model.addAttribute("user", new User());
 
-        return "users/new";
+        return "new";
     }
 
     @PostMapping//перенаправление на страницу всех юзеров

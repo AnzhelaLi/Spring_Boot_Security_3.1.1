@@ -6,7 +6,7 @@ import org.springframework.stereotype.Repository;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
-import javax.transaction.Transactional;
+
 
 @Repository
 public class RoleDaoImpl implements RoleDao {
@@ -20,7 +20,7 @@ public class RoleDaoImpl implements RoleDao {
         return role;
     }
 
-    @Transactional
+
     @Override
     public Role updateRole(Role updatedRole) {
         entityManager.merge(updatedRole);

@@ -1,18 +1,21 @@
 package org.example.model;
 
+import org.example.service.UserServiceImpl;
 import org.springframework.security.core.GrantedAuthority;
+
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Size;
 
-import java.util.Collection;
+import java.util.*;
 
-import java.util.HashSet;
-import java.util.Set;
+
 // Для того, чтобы в дальнейшим использовать класс User в Spring Security, он должен реализовывать интерфейс UserDetails.
 // UserDetails можно представить, как адаптер между БД пользователей и тем что требуется Spring Security внутри SecurityContextHolder
-
-
 @Entity
 @Table(name = "users")
 public class User implements UserDetails {
@@ -21,23 +24,38 @@ public class User implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
     private Long id;
+
+    @NotEmpty(message = "Name should not be empty")
+    @Size(min = 2, max = 20, message = "Name should be min 2 max 20 characters")
     @Column(name = "name")
     private String name;
+
+    @NotEmpty(message = "Surname should not be empty")
+    @Size(min = 2, max = 20, message = "Surname should be min 2 max 20 characters")
     @Column(name = "surname")
     private String surname;
+
     @Column(name = "workplace")
     private String workplace;
+
+    @Min(value = 10, message = "Age should be min 10")
     @Column(name = "age")
     private int age;
+
     @Column(name = "salary")
     private int salary;
+
+    @NotEmpty(message = "Username should not be empty")
+    @Size(min = 4, max = 8, message = "Username should be min 4 max 8 characters")
     @Column(name = "username", unique = true)
     private String username; // уникальное значение
+
+    @NotEmpty(message = "Password should not be empty")
     @Column(name = "password")
     private String password;
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
-    @JoinTable(name = "user_role", joinColumns = @JoinColumn(name = "user_id"),
+    @ManyToMany(fetch=FetchType.EAGER)
+    @JoinTable(name = "users_roles", joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles = new HashSet<>();
 
@@ -66,10 +84,7 @@ public class User implements UserDetails {
 
     }
 
-
-    public User() {
-
-    }
+    public User() {}
 
     public Long getId() {
         return id;
@@ -133,7 +148,6 @@ public class User implements UserDetails {
 
     public void addRole(Role role) {
         this.roles.add(role);
-
     }
 
     public void setUsername(String username) {
@@ -152,8 +166,9 @@ public class User implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-
-        return getRoles();
+        Set<GrantedAuthority> grantedAuthorities = new HashSet<>();
+        roles.forEach(r->grantedAuthorities.add(new SimpleGrantedAuthority(r.getRole())));
+        return grantedAuthorities;
     }
 
     @Override
@@ -175,5 +190,4 @@ public class User implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
-
 }

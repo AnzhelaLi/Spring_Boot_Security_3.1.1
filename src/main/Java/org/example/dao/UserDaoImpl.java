@@ -5,7 +5,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.*;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaDelete;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.CriteriaUpdate;
+import javax.persistence.metamodel.Metamodel;
+import javax.transaction.Transactional;
 import java.util.*;
+
 
 @Repository
 public class UserDaoImpl implements UserDao {
@@ -15,7 +22,6 @@ public class UserDaoImpl implements UserDao {
 
     @PersistenceContext
     private EntityManager entityManager;
-
     private RoleDao roleDao;
 
     @Autowired
@@ -23,6 +29,7 @@ public class UserDaoImpl implements UserDao {
         this.roleDao = roleDao;
     }
 
+    @Transactional
     @Override
     public User justSaveUser(User user) {
         entityManager.persist(user);
@@ -37,9 +44,9 @@ public class UserDaoImpl implements UserDao {
 
     }
 
+    @Transactional
     @Override
     public User updateUser(User updatedUser) {
-
         entityManager.merge(updatedUser);
 
         return updatedUser;
@@ -55,14 +62,14 @@ public class UserDaoImpl implements UserDao {
         return entityManager.find(User.class, id);
     }
 
-
     @Override
     public User getUserByName(String username) {
+
         try {
             return entityManager.
-                    createQuery("from User u inner JOIN fetch u.roles where u.username = :username", User.class).
+                    createQuery("select u from User u where u.username = :username", User.class).
                     setParameter("username", username).getSingleResult();
-        } catch (NoResultException | NullPointerException e) {
+        } catch (NoResultException e) {
             e.printStackTrace();
             return null;
         }

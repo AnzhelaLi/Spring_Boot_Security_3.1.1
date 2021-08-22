@@ -1,11 +1,18 @@
-<!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
-<html lang="en">
+<!doctype html>
+<html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <title></title>
+    <!-- Кодировка веб-страницы -->
+    <meta charset="utf-8">
+    <!-- Настройка viewport -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="css/bootstrap.min.css" >
+    <!-- Bootstrap JS + Popper JS -->
+    <script defer src="js/bootstrap.bundle.min.js"></script>
 </head>
 <body>
+<!-- Контент страницы -->
 <div>
     <form method="post" action="/login">
         <input name="j_username"/>
@@ -13,5 +20,7 @@
         <input type="submit"/>
     </form>
 </div>
+
+
 </body>
 </html>

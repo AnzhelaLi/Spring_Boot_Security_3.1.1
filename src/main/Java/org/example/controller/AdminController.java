@@ -65,6 +65,7 @@ public class AdminController {
 
     @PostMapping//перенаправление на страницу всех юзеров
     public String create(@ModelAttribute("user") @Valid User user, BindingResult bindingResult, HttpServletRequest request) {
+
         if (bindingResult.hasErrors()) {
             return "new";
         }

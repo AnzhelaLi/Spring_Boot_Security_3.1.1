@@ -21,17 +21,12 @@ public class UserController {
     public UserController(UserDao userDao) {
         this.userDao = userDao;
     }
+
     @GetMapping("/user")
     public String userPage(Principal principal, Model model) {
+
         User username = userDao.getUserByName(principal.getName());
         model.addAttribute("user", username);
         return "userInfo";
     }
-
-   /* @GetMapping
-    public String showUser(Model model) {
-        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        model.addAttribute("user", user);
-        return "userInfo";
-    }*/
 }

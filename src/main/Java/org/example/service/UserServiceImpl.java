@@ -38,7 +38,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     public UserServiceImpl() {
-
     }
 
     @Transactional

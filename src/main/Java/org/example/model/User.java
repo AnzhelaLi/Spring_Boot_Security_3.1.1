@@ -13,7 +13,6 @@ import javax.validation.constraints.Size;
 
 import java.util.*;
 
-
 // Для того, чтобы в дальнейшим использовать класс User в Spring Security, он должен реализовывать интерфейс UserDetails.
 // UserDetails можно представить, как адаптер между БД пользователей и тем что требуется Spring Security внутри SecurityContextHolder
 @Entity
@@ -54,7 +53,7 @@ public class User implements UserDetails {
     @Column(name = "password")
     private String password;
 
-    @ManyToMany(fetch=FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "users_roles", joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles = new HashSet<>();
@@ -84,7 +83,8 @@ public class User implements UserDetails {
 
     }
 
-    public User() {}
+    public User() {
+    }
 
     public Long getId() {
         return id;
@@ -167,7 +167,7 @@ public class User implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         Set<GrantedAuthority> grantedAuthorities = new HashSet<>();
-        roles.forEach(r->grantedAuthorities.add(new SimpleGrantedAuthority(r.getRole())));
+        roles.forEach(r -> grantedAuthorities.add(new SimpleGrantedAuthority(r.getRole())));
         return grantedAuthorities;
     }
 
